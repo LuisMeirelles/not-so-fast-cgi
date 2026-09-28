@@ -142,19 +142,38 @@ static int handle_response(const int fd)
                 )
                 + header.paddingLength;
 
-            if (header.type == FCGI_STDOUT)
-            {
-                char* start = buf;
-                char* body = start + sizeof(header);
+            int exit = 0;
 
-                process_stdout(body, &out);
+            switch (header.type)
+            {
+            case FCGI_STDOUT:
+                {
+                    char* start = buf;
+                    char* body = start + sizeof(header);
+
+                    process_stdout(body, &out);
+
+                    break;
+                }
+
+            case FCGI_END_REQUEST:
+                {
+                    exit = 1;
+                    break;
+                }
+
+            default:
+                fprintf(stderr, "Error while trying to parse request");
+                exit = 1;
+                break;
             }
 
-            // skip padding (from header)
-
-            // repeat
+            if (exit == 1)
+            {
+                break;
+            }
         }
-        while (header.type != FCGI_END_REQUEST);
+        while (1);
     }
 
     return 0;
