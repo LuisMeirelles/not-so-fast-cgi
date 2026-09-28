@@ -13,30 +13,30 @@ int process_stdout(char* content, StdoutReponse* stdout_buf)
     int i = 0;
     char* http_headers = content;
 
-    // TODO: dynamic header size
-    char* headers[3] = {nullptr};
+    CharLinkedList parts = explode(http_headers, "\r\n\r\n");
 
-    char* parts[2] = {0};
+    http_headers = parts.data;
+    stdout_buf->body = parts.next->data;
 
-    explode(http_headers, "\r\n\r\n", parts);
+    const CharLinkedList headers = explode(http_headers, "\r\n");
 
-    http_headers = parts[0];
-    stdout_buf->body = parts[1];
+    const size_t headers_count = headers.count;
 
-    explode(http_headers, "\r\n", headers);
-
-    constexpr size_t headers_count = sizeof(headers) / sizeof(headers[0]);
+    const CharLinkedList* header = &headers;
 
     for (i = 0; i < headers_count; i++)
     {
-        explode(headers[i], ":", parts);
+        parts = explode(header->data, ":");
 
-        char* value = parts[1];
+        char* key = parts.data;
+        char* value = parts.next->data;
 
         while (*value == ' ') value++;
 
-        stdout_buf->headers[i].key = parts[0];
+        stdout_buf->headers[i].key = key;
         stdout_buf->headers[i].value = value;
+
+        header = header->next;
     }
 
     return 0;

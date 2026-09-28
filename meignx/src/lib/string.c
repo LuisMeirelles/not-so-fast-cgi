@@ -4,32 +4,47 @@
 
 #include "lib/string.h"
 
+#include <stdlib.h>
 #include <string.h>
 
-void explode(char* haystack, const char* needle, char* parts[])
+#include "lib/linked_list.h"
+
+CharLinkedList explode(char* haystack, const char* needle)
 {
-    int i = 0;
+    int count = 0;
     char* limit = {nullptr};
     const size_t needle_len = strlen(needle);
 
+    CharLinkedList parts = {0};
+
+    CharLinkedList* item = &parts;
+
     do
     {
+        count++;
+
         limit = strstr(haystack, needle);
 
         if (limit != nullptr)
         {
             *limit = '\0';
 
-            parts[i] = haystack;
+            item->data = haystack;
 
             haystack = limit + needle_len;
-
-            i++;
         }
         else
         {
-            parts[i] = haystack;
+            item->data = haystack;
+            break;
         }
+
+        item->next = (CharLinkedList *) malloc(sizeof(CharLinkedList));
+        item = item->next;
     }
-    while (limit != nullptr);
+    while (1);
+
+    parts.count = count;
+
+    return parts;
 }

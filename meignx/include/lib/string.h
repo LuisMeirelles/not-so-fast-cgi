@@ -3,5 +3,6 @@
 //
 
 #pragma once
+#include "linked_list.h"
 
-void explode(char* haystack, const char* needle, char* parts[]);
+CharLinkedList explode(char* haystack, const char* needle);
